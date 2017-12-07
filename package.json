@@ -1,5 +1,8 @@
 {
-	"devDependencies": {
-		"lerna": "^2.5.1"
-	}
+  "scripts": {
+    "publish:mono": "./scripts/publish-cli.js",
+  },
+  "devDependencies": {
+    "lerna": "^2.5.1"
+  }
 }
