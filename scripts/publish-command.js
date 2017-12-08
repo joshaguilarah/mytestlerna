@@ -6,6 +6,10 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _child_process = require('child_process');
+
+var _child_process2 = _interopRequireDefault(_child_process);
+
 var _os = require('os');
 
 var _chalk = require('chalk');
@@ -35,10 +39,6 @@ var _Command3 = _interopRequireDefault(_Command2);
 var _GitUtilities = require('lerna/lib/GitUtilities');
 
 var _GitUtilities2 = _interopRequireDefault(_GitUtilities);
-
-var _NpmUtilities = require('lerna/lib/NpmUtilities');
-
-var _NpmUtilities2 = _interopRequireDefault(_NpmUtilities);
 
 var _output = require('lerna/lib/utils/output');
 
@@ -100,6 +100,7 @@ var PublishCommand = function (_Command) {
     value: function initialize(callback) {
       var _this2 = this;
 
+      this.npmClient = this.options.npmClient;
       this.gitRemote = 'origin';
       this.globalVersion = this.repository.version;
       this.logger.info('current version', this.globalVersion);
@@ -241,36 +242,31 @@ var PublishCommand = function (_Command) {
 
       // Run the prepublish script
       this.runSyncScriptInPackage(pkg, 'prepublish');
-
-      var tracker = this.logger.newItem('npmPublish');
-      tracker.addWork(this.packagesToPublishCount);
       var attempts = 0;
       var run = function run() {
-        var npmTag = 'latest';
-        tracker.verbose('publishing', pkg.name);
+        var callBackError = void 0;
+        try {
+          // Publish the package to the npm registry
+          var stdout = _child_process2.default.execSync('npm publish', { cwd: pkg.location });
+          _this5.logger.info('publish', 'Publish succeeded', pkg.name, stdout.toString());
 
-        // Publishing package to npm
-        _NpmUtilities2.default.publishTaggedInDir(npmTag, pkg.location, _this5.npmRegistry, function (error) {
-          if (!error) {
-            tracker.info('published', pkg.name);
-            tracker.completeWork(1);
-            // Run the postpublish script
-            _this5.runSyncScriptInPackage(pkg, 'postpublish');
-            tracker.finish();
-            return;
-          }
+          // Run the postpublish script
+          _this5.runSyncScriptInPackage(pkg, 'postpublish');
 
-          attempts += 1;
+          return;
+        } catch (error) {
+          callBackError = { stack: error.stdout.toString() };
+          _this5.logger.error('publish', 'Publish succeeded', pkg.name, error.stdout.toString());
+        }
 
-          if (attempts < 5) {
-            _this5.logger.error('publish', 'Retrying failed publish:', pkg.name);
-            run();
-          } else {
-            _this5.logger.error('publish', 'Ran out of retries while publishing', pkg.name, error.stack || error);
-            tracker.finish();
-            callback(error);
-          }
-        });
+        attempts += 1;
+
+        if (attempts < 5) {
+          _this5.logger.error('publish', 'Retrying failed publish:', pkg.name);
+          run();
+        } else {
+          callback(callBackError);
+        }
       };
       run();
     }
@@ -323,25 +319,24 @@ var PublishCommand = function (_Command) {
   }, {
     key: 'runSyncScriptInPackage',
     value: function runSyncScriptInPackage(pkg, scriptName) {
-      var _this7 = this;
-
-      pkg.runScriptSync(scriptName, function (error) {
-        if (error) {
-          _this7.logger.error('publish', 'error running ' + scriptName + ' in ' + pkg.name + '\n', error.stack || error);
-        }
-      });
+      try {
+        var stdout = _child_process2.default.execSync('yarn ' + scriptName, { cwd: pkg.location });
+        this.logger.info(stdout.toString());
+      } catch (error) {
+        this.logger.error(scriptName, 'error running ' + scriptName + ' in ' + pkg.name + '\n', error.stdout.toString());
+      }
     }
   }, {
     key: 'updatePackageDepsObject',
     value: function updatePackageDepsObject(pkg, depsKey) {
-      var _this8 = this;
+      var _this7 = this;
 
       var deps = pkg[depsKey];
       if (!deps) {
         return;
       }
       this.packageGraph.get(pkg.name).dependencies.forEach(function (depName) {
-        var version = _this8.updatesVersions[depName];
+        var version = _this7.updatesVersions[depName];
         if (deps[depName] && version) {
           deps[depName] = '^' + version;
         }
