@@ -156,6 +156,7 @@ var PublishCommand = function (_Command) {
 
       this.logger.info('publish', 'Publishing packages to npm in topological order...');
       _PackageUtilities2.default.runParallelBatches(this.batchedPackagesToPublish, function (pkg) {
+        _this3.logger.info('publish', 'Publishing ' + pkg.name + '...');
         _this3.updatePackage(pkg);
         _this3.npmPublish(pkg, callback);
       }, this.concurrency, function (error) {
@@ -164,10 +165,9 @@ var PublishCommand = function (_Command) {
     }
   }, {
     key: 'updatePackage',
-    value: function updatePackage(oldPkg) {
+    value: function updatePackage(pkg) {
       var _this4 = this;
 
-      var pkg = Object.assign({}, oldPkg);
       var changedFiles = [];
       var packageLocation = pkg.location;
       var packageJsonLocation = _path2.default.join(packageLocation, 'package.json');
