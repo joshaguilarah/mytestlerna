@@ -241,7 +241,7 @@ var PublishCommand = function (_Command) {
       // Update the yarn.lock file for the package if updateYarnLock flag is enabled.
       // NOTE: This extra step might make the publish process take a bit longer than usual but we already
       // manually do the yarn.lock update as a separate step anyway which takes just as long.
-      if (pkg.updateYarnLock) {
+      if (pkg._package.updateYarnLock) {
         this.logger.info('install', 'Updating yarn.lock file for ' + pkg.name + '...');
         this.runSyncScriptInPackage(pkg, 'install');
 
