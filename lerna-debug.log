@@ -1,0 +1,48 @@
+0 silly input undefined
+1 silly flags {}
+2 verbose rootPath /home/josh/dev/allhomes-front-end/mytestlerna
+3 info version 2.5.1
+4 silly isInitialized
+5 silly isInitialized true
+6 silly existsSync /home/josh/dev/allhomes-front-end/mytestlerna/VERSION
+7 silly initialize attempt
+8 info current version 0.0.3
+9 silly isDetachedHead
+10 silly getCurrentBranch
+11 verbose getCurrentBranch master
+12 verbose isDetachedHead false
+13 silly getUpdates
+14 info Checking for updated packages...
+15 silly hasTags
+16 verbose hasTags true
+17 silly getLastTag
+18 verbose getLastTag v0.0.3
+19 info Comparing with v0.0.3.
+20 silly diffSinceIn v0.0.3 packages/japackageone
+21 silly diff
+22 silly diffSinceIn v0.0.3 packages/japackagetwo
+23 silly diff packages/japackagetwo/index.js
+24 verbose updated japackagetwo
+25 info Checking for prereleased packages...
+26 silly collectDependents
+27 silly isPackageDependentOf japackageone japackagetwo
+28 verbose dependent japackageone depends on japackagetwo
+29 silly isPackageDependentOf japackagetwo japackagetwo
+30 silly collectUpdates
+31 verbose has filtered update japackageone
+32 verbose has filtered update japackagetwo
+33 silly initialize success
+34 silly execute attempt
+35 silly addFile /home/josh/dev/allhomes-front-end/mytestlerna/lerna.json
+36 info publish Publishing packages to npm in topological order...
+37 error execute caught error
+38 error TypeError: Path must be a string. Received undefined
+38 error     at assertPath (path.js:7:11)
+38 error     at Object.join (path.js:1218:7)
+38 error     at PublishCommand.updatePackage (/home/josh/dev/allhomes-front-end/mytestlerna/scripts/publish-command.js:173:48)
+38 error     at /home/josh/dev/allhomes-front-end/mytestlerna/scripts/publish-command.js:159:16
+38 error     at Array.map (native)
+38 error     at /home/josh/dev/allhomes-front-end/mytestlerna/node_modules/lerna/lib/PackageUtilities.js:334:47
+38 error     at /home/josh/dev/allhomes-front-end/mytestlerna/node_modules/async/lib/async.js:718:13
+38 error     at iterate (/home/josh/dev/allhomes-front-end/mytestlerna/node_modules/async/lib/async.js:262:13)
+38 error     at async.forEachOfSeries.async.eachOfSeries (/home/josh/dev/allhomes-front-end/mytestlerna/node_modules/async/lib/async.js:281:9)

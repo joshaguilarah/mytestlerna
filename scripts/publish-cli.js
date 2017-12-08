@@ -7,7 +7,7 @@ var _publishCommand2 = _interopRequireDefault(_publishCommand);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var publishCommand = new _publishCommand2.default();
+var publishCommand = new _publishCommand2.default([], {}, __dirname);
 
 publishCommand.run().then(function (_ref) {
   var exitCode = _ref.exitCode;
