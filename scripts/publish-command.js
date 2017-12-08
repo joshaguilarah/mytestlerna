@@ -241,9 +241,15 @@ var PublishCommand = function (_Command) {
       // Update the yarn.lock file for the package if updateYarnLock flag is enabled.
       // NOTE: This extra step might make the publish process take a bit longer than usual but we already
       // manually do the yarn.lock update as a separate step anyway which takes just as long.
+      // eslint-disable-next-line no-underscore-dangle
       if (pkg._package.updateYarnLock) {
-        this.logger.info('install', 'Updating yarn.lock file for ' + pkg.name + '...');
-        this.runSyncScriptInPackage(pkg, 'install');
+        this.logger.info('publish', 'Updating yarn.lock file for ' + pkg.name + '...');
+        try {
+          var opts = _NpmUtilities2.default.getExecOpts(pkg.location, this.npmRegistry);
+          _ChildProcessUtilities2.default.execSync('yarn', ['install'], opts);
+        } catch (error) {}
+        // Fail silently
+
 
         // Add the yarn.lock file to list of files to be git committed
         changedFiles.push(yarnLockLocation);
