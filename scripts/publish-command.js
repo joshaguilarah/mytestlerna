@@ -262,7 +262,7 @@ var PublishCommand = function (_Command) {
           return;
         } catch (error) {
           callBackError = error;
-          _this5.logger.error('publish', 'Publish succeeded', pkg.name, error.stdout.toString());
+          _this5.logger.error('publish', 'Publish failed', pkg.name, error.message);
         }
 
         attempts += 1;
