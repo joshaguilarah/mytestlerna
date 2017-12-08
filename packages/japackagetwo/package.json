@@ -1,0 +1,8 @@
+{
+  "name": "japackagetwo",
+  "version": "0.0.1",
+  "description": "no-op test",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC"
+}
