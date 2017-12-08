@@ -6,10 +6,6 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _child_process = require('child_process');
-
-var _child_process2 = _interopRequireDefault(_child_process);
-
 var _os = require('os');
 
 var _chalk = require('chalk');
@@ -36,9 +32,17 @@ var _Command2 = require('lerna/lib/Command');
 
 var _Command3 = _interopRequireDefault(_Command2);
 
+var _ChildProcessUtilities = require('lerna/lib/ChildProcessUtilities');
+
+var _ChildProcessUtilities2 = _interopRequireDefault(_ChildProcessUtilities);
+
 var _GitUtilities = require('lerna/lib/GitUtilities');
 
 var _GitUtilities2 = _interopRequireDefault(_GitUtilities);
+
+var _NpmUtilities = require('lerna/lib/NpmUtilities');
+
+var _NpmUtilities2 = _interopRequireDefault(_NpmUtilities);
 
 var _output = require('lerna/lib/utils/output');
 
@@ -247,7 +251,9 @@ var PublishCommand = function (_Command) {
         var callBackError = void 0;
         try {
           // Publish the package to the npm registry
-          var stdout = _child_process2.default.execSync('npm publish', { cwd: pkg.location });
+          var opts = _NpmUtilities2.default.getExecOpts(pkg.location, _this5.npmRegistry);
+          var stdout = _ChildProcessUtilities2.default.execSync('npm', ['publish', '--tag', 'latest'], opts);
+
           _this5.logger.info('publish', 'Publish succeeded', pkg.name, stdout.toString());
 
           // Run the postpublish script
@@ -255,7 +261,7 @@ var PublishCommand = function (_Command) {
 
           return;
         } catch (error) {
-          callBackError = { stack: error.stdout.toString() };
+          callBackError = error;
           _this5.logger.error('publish', 'Publish succeeded', pkg.name, error.stdout.toString());
         }
 
@@ -319,24 +325,25 @@ var PublishCommand = function (_Command) {
   }, {
     key: 'runSyncScriptInPackage',
     value: function runSyncScriptInPackage(pkg, scriptName) {
-      try {
-        var stdout = _child_process2.default.execSync('yarn ' + scriptName, { cwd: pkg.location });
-        this.logger.info(stdout.toString());
-      } catch (error) {
-        this.logger.error(scriptName, 'error running ' + scriptName + ' in ' + pkg.name + '\n', error.stdout.toString());
-      }
+      var _this7 = this;
+
+      pkg.runScriptSync(scriptName, function (error) {
+        if (error) {
+          _this7.logger.error('publish', 'error running ' + scriptName + ' in ' + pkg.name + '\n', error.stack || error);
+        }
+      });
     }
   }, {
     key: 'updatePackageDepsObject',
     value: function updatePackageDepsObject(pkg, depsKey) {
-      var _this7 = this;
+      var _this8 = this;
 
       var deps = pkg[depsKey];
       if (!deps) {
         return;
       }
       this.packageGraph.get(pkg.name).dependencies.forEach(function (depName) {
-        var version = _this7.updatesVersions[depName];
+        var version = _this8.updatesVersions[depName];
         if (deps[depName] && version) {
           deps[depName] = '^' + version;
         }
