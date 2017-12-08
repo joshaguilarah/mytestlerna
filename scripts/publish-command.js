@@ -121,6 +121,7 @@ var PublishCommand = function (_Command) {
           depsOnly: true,
           rejectCycles: true
         });
+        this.logger.info(JSON.stringify('wohoooooo!!!!!!' + batchedPackagesToPublish));
       } catch (error) {
         callback(error);
         return;
