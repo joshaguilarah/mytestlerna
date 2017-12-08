@@ -2,6 +2,6 @@
 # yarn lockfile v1
 
 
-japackagetwo@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/japackagetwo/-/japackagetwo-0.0.1.tgz#add34023a570754ec8a217b906b24622a5fa2821"
+japackagetwo@^0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/japackagetwo/-/japackagetwo-0.0.11.tgz#30e18afc341934810fdddbd5e4981bcb3f3d5576"
