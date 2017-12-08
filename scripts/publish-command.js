@@ -291,7 +291,7 @@ var PublishCommand = function (_Command) {
         }
         return { success: false, error: resultError };
       };
-      run();
+      return run();
     }
   }, {
     key: 'getVersionsForUpdates',
