@@ -12,6 +12,10 @@ var _chalk = require('chalk');
 
 var _chalk2 = _interopRequireDefault(_chalk);
 
+var _flatten = require('lodash/flatten');
+
+var _flatten2 = _interopRequireDefault(_flatten);
+
 var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
@@ -104,6 +108,7 @@ var PublishCommand = function (_Command) {
     value: function initialize(callback) {
       var _this2 = this;
 
+      this.npmRegistry = 'https://registry.npmjs.org/';
       this.npmClient = this.options.npmClient;
       this.gitRemote = 'origin';
       this.globalVersion = this.repository.version;
@@ -122,10 +127,10 @@ var PublishCommand = function (_Command) {
       this.packagesToPublishCount = this.packagesToPublish.length;
       try {
         // This will sort the packages according to the dependency structure (ie. dependencies go before dependents)
-        this.batchedPackagesToPublish = _PackageUtilities2.default.topologicallyBatchPackages(this.packagesToPublish, {
+        this.sortedPackagesToPublish = (0, _flatten2.default)(_PackageUtilities2.default.topologicallyBatchPackages(this.packagesToPublish, {
           depsOnly: true,
           rejectCycles: true
-        });
+        }));
       } catch (error) {
         callback(error);
         return;
@@ -154,17 +159,23 @@ var PublishCommand = function (_Command) {
   }, {
     key: 'execute',
     value: function execute(callback) {
-      this.updateVersionInLernaJson();
-      this.publishPackagesToNpm(callback);
-      this.gitCommitTagAndPush();
+      var _this3 = this;
 
-      var message = this.packagesToPublish.map(function (pkg) {
-        return ' - ' + pkg.name + '@' + pkg.version;
+      this.updateVersionInLernaJson();
+      this.publishPackagesToNpm(function (error) {
+        if (error) {
+          callback(error);
+          return;
+        }
+        _this3.gitCommitTagAndPush();
+        var message = _this3.packagesToPublish.map(function (pkg) {
+          return ' - ' + pkg.name + '@' + pkg.version;
+        });
+        (0, _output2.default)('Successfully published:');
+        (0, _output2.default)(message.join(_os.EOL));
+        _this3.logger.success('publish', 'finished');
+        callback(null, true);
       });
-      (0, _output2.default)('Successfully published:');
-      (0, _output2.default)(message.join(_os.EOL));
-      this.logger.success('publish', 'finished');
-      callback(null, true);
     }
   }, {
     key: 'updateVersionInLernaJson',
@@ -179,20 +190,27 @@ var PublishCommand = function (_Command) {
   }, {
     key: 'publishPackagesToNpm',
     value: function publishPackagesToNpm(callback) {
-      var _this3 = this;
+      var _this4 = this;
 
       this.logger.info('publish', 'Publishing packages to npm in topological order...');
-      this.batchedPackagesToPublish.forEach(function (batch) {
-        batch.forEach(function (pkg) {
-          _this3.updatePackage(pkg);
-          _this3.npmPublish(pkg, callback);
+      try {
+        this.sortedPackagesToPublish.forEach(function (pkg) {
+          _this4.updatePackage(pkg);
+          var publishResult = _this4.npmPublish(pkg);
+          if (!publishResult.success) {
+            throw new Error(publishResult.error);
+          }
         });
-      });
+      } catch (error) {
+        callback(error);
+        return;
+      }
+      callback();
     }
   }, {
     key: 'updatePackage',
     value: function updatePackage(pkg) {
-      var _this4 = this;
+      var _this5 = this;
 
       var changedFiles = [];
       var packageLocation = pkg.location;
@@ -233,7 +251,7 @@ var PublishCommand = function (_Command) {
 
       // Add all changed files to be git committed
       changedFiles.forEach(function (file) {
-        return _GitUtilities2.default.addFile(file, _this4.execOpts);
+        return _GitUtilities2.default.addFile(file, _this5.execOpts);
       });
 
       // Run the postversion script
@@ -241,38 +259,37 @@ var PublishCommand = function (_Command) {
     }
   }, {
     key: 'npmPublish',
-    value: function npmPublish(pkg, callback) {
-      var _this5 = this;
+    value: function npmPublish(pkg) {
+      var _this6 = this;
 
       // Run the prepublish script
       this.runSyncScriptInPackage(pkg, 'prepublish');
       var attempts = 0;
       var run = function run() {
-        var callBackError = void 0;
+        var resultError = void 0;
         try {
           // Publish the package to the npm registry
-          var opts = _NpmUtilities2.default.getExecOpts(pkg.location, _this5.npmRegistry);
+          var opts = _NpmUtilities2.default.getExecOpts(pkg.location, _this6.npmRegistry);
           var stdout = _ChildProcessUtilities2.default.execSync('npm', ['publish', '--tag', 'latest'], opts);
 
-          _this5.logger.info('publish', 'Publish succeeded', pkg.name, stdout.toString());
+          _this6.logger.info('publish', 'Publish succeeded', pkg.name, stdout.toString());
 
           // Run the postpublish script
-          _this5.runSyncScriptInPackage(pkg, 'postpublish');
+          _this6.runSyncScriptInPackage(pkg, 'postpublish');
 
-          return;
+          return { success: true };
         } catch (error) {
-          callBackError = error;
-          _this5.logger.error('publish', 'Publish failed', pkg.name, error.message);
+          resultError = error;
+          _this6.logger.error('publish', 'Publish failed', pkg.name, error.message);
         }
 
         attempts += 1;
 
         if (attempts < 5) {
-          _this5.logger.error('publish', 'Retrying failed publish:', pkg.name);
+          _this6.logger.error('publish', 'Retrying failed publish:', pkg.name);
           run();
-        } else {
-          callback(callBackError);
         }
+        return { success: false, error: resultError };
       };
       run();
     }
@@ -302,11 +319,11 @@ var PublishCommand = function (_Command) {
   }, {
     key: 'confirmVersions',
     value: function confirmVersions(callback) {
-      var _this6 = this;
+      var _this7 = this;
 
       var changes = this.updates.map(function (update) {
         var pkg = update.package;
-        var line = ' - ' + pkg.name + ': ' + pkg.version + ' => ' + _this6.updatesVersions[pkg.name];
+        var line = ' - ' + pkg.name + ': ' + pkg.version + ' => ' + _this7.updatesVersions[pkg.name];
         if (pkg.isPrivate()) {
           line += ' (' + _chalk2.default.red('private') + ')';
         }
@@ -325,25 +342,25 @@ var PublishCommand = function (_Command) {
   }, {
     key: 'runSyncScriptInPackage',
     value: function runSyncScriptInPackage(pkg, scriptName) {
-      var _this7 = this;
+      var _this8 = this;
 
       pkg.runScriptSync(scriptName, function (error) {
         if (error) {
-          _this7.logger.error('publish', 'error running ' + scriptName + ' in ' + pkg.name + '\n', error.stack || error);
+          _this8.logger.error('publish', 'error running ' + scriptName + ' in ' + pkg.name + '\n', error.stack || error);
         }
       });
     }
   }, {
     key: 'updatePackageDepsObject',
     value: function updatePackageDepsObject(pkg, depsKey) {
-      var _this8 = this;
+      var _this9 = this;
 
       var deps = pkg[depsKey];
       if (!deps) {
         return;
       }
       this.packageGraph.get(pkg.name).dependencies.forEach(function (depName) {
-        var version = _this8.updatesVersions[depName];
+        var version = _this9.updatesVersions[depName];
         if (deps[depName] && version) {
           deps[depName] = '^' + version;
         }

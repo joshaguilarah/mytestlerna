@@ -1,48 +1,61 @@
-0 silly input undefined
-1 silly flags {}
-2 verbose rootPath /home/josh/dev/allhomes-front-end/mytestlerna
-3 info version 2.5.1
-4 silly isInitialized
-5 silly isInitialized true
-6 silly existsSync /home/josh/dev/allhomes-front-end/mytestlerna/VERSION
-7 silly initialize attempt
-8 info current version 0.0.3
-9 silly isDetachedHead
-10 silly getCurrentBranch
-11 verbose getCurrentBranch master
-12 verbose isDetachedHead false
-13 silly getUpdates
-14 info Checking for updated packages...
-15 silly hasTags
-16 verbose hasTags true
-17 silly getLastTag
-18 verbose getLastTag v0.0.3
-19 info Comparing with v0.0.3.
-20 silly diffSinceIn v0.0.3 packages/japackageone
-21 silly diff
-22 silly diffSinceIn v0.0.3 packages/japackagetwo
-23 silly diff packages/japackagetwo/index.js
-24 verbose updated japackagetwo
-25 info Checking for prereleased packages...
-26 silly collectDependents
-27 silly isPackageDependentOf japackageone japackagetwo
-28 verbose dependent japackageone depends on japackagetwo
-29 silly isPackageDependentOf japackagetwo japackagetwo
-30 silly collectUpdates
-31 verbose has filtered update japackageone
-32 verbose has filtered update japackagetwo
-33 silly initialize success
-34 silly execute attempt
-35 silly addFile /home/josh/dev/allhomes-front-end/mytestlerna/lerna.json
-36 info publish Publishing packages to npm in topological order...
-37 error execute caught error
-38 error TypeError: Path must be a string. Received undefined
-38 error     at assertPath (path.js:7:11)
-38 error     at Object.join (path.js:1218:7)
-38 error     at PublishCommand.updatePackage (/home/josh/dev/allhomes-front-end/mytestlerna/scripts/publish-command.js:173:48)
-38 error     at /home/josh/dev/allhomes-front-end/mytestlerna/scripts/publish-command.js:159:16
-38 error     at Array.map (native)
-38 error     at /home/josh/dev/allhomes-front-end/mytestlerna/node_modules/lerna/lib/PackageUtilities.js:334:47
-38 error     at /home/josh/dev/allhomes-front-end/mytestlerna/node_modules/async/lib/async.js:718:13
-38 error     at iterate (/home/josh/dev/allhomes-front-end/mytestlerna/node_modules/async/lib/async.js:262:13)
-38 error     at async.forEachOfSeries.async.eachOfSeries (/home/josh/dev/allhomes-front-end/mytestlerna/node_modules/async/lib/async.js:281:9)
+58 silly runScriptSync preversion japackageone
+59 silly runScriptSync version japackageone
+60 silly addFile /home/josh/dev/allhomes-front-end/mytestlerna/packages/japackageone/package.json
+61 silly runScriptSync postversion japackageone
+62 silly runScriptSync prepublish japackageone
+63 silly getExecOpts { cwd: '/home/josh/dev/allhomes-front-end/mytestlerna/packages/japackageone' }
+64 error publish Publish failed japackageone npm ERR! code ENEEDAUTH
+64 error publish npm ERR! need auth auth required for publishing
+64 error publish npm ERR! need auth You need to authorize this machine using `npm adduser`
+64 error publish
+64 error publish npm ERR! A complete log of this run can be found in:
+64 error publish npm ERR!     /home/josh/.npm/_logs/2017-12-08T02_49_15_328Z-debug.log
+65 error publish Retrying failed publish: japackageone
+66 silly getExecOpts { cwd: '/home/josh/dev/allhomes-front-end/mytestlerna/packages/japackageone' }
+67 error publish Publish failed japackageone npm ERR! code ENEEDAUTH
+67 error publish npm ERR! need auth auth required for publishing
+67 error publish npm ERR! need auth You need to authorize this machine using `npm adduser`
+67 error publish
+67 error publish npm ERR! A complete log of this run can be found in:
+67 error publish npm ERR!     /home/josh/.npm/_logs/2017-12-08T02_49_16_165Z-debug.log
+68 error publish Retrying failed publish: japackageone
+69 silly getExecOpts { cwd: '/home/josh/dev/allhomes-front-end/mytestlerna/packages/japackageone' }
+70 error publish Publish failed japackageone npm ERR! code ENEEDAUTH
+70 error publish npm ERR! need auth auth required for publishing
+70 error publish npm ERR! need auth You need to authorize this machine using `npm adduser`
+70 error publish
+70 error publish npm ERR! A complete log of this run can be found in:
+70 error publish npm ERR!     /home/josh/.npm/_logs/2017-12-08T02_49_17_021Z-debug.log
+71 error publish Retrying failed publish: japackageone
+72 silly getExecOpts { cwd: '/home/josh/dev/allhomes-front-end/mytestlerna/packages/japackageone' }
+73 error publish Publish failed japackageone npm ERR! code ENEEDAUTH
+73 error publish npm ERR! need auth auth required for publishing
+73 error publish npm ERR! need auth You need to authorize this machine using `npm adduser`
+73 error publish
+73 error publish npm ERR! A complete log of this run can be found in:
+73 error publish npm ERR!     /home/josh/.npm/_logs/2017-12-08T02_49_17_835Z-debug.log
+74 error publish Retrying failed publish: japackageone
+75 silly getExecOpts { cwd: '/home/josh/dev/allhomes-front-end/mytestlerna/packages/japackageone' }
+76 error publish Publish failed japackageone npm ERR! code ENEEDAUTH
+76 error publish npm ERR! need auth auth required for publishing
+76 error publish npm ERR! need auth You need to authorize this machine using `npm adduser`
+76 error publish
+76 error publish npm ERR! A complete log of this run can be found in:
+76 error publish npm ERR!     /home/josh/.npm/_logs/2017-12-08T02_49_18_649Z-debug.log
+77 error execute callback with error
+78 error Error: npm ERR! code ENEEDAUTH
+78 error npm ERR! need auth auth required for publishing
+78 error npm ERR! need auth You need to authorize this machine using `npm adduser`
+78 error
+78 error npm ERR! A complete log of this run can be found in:
+78 error npm ERR!     /home/josh/.npm/_logs/2017-12-08T02_49_18_649Z-debug.log
+78 error
+78 error     at Function.module.exports.sync (/home/josh/dev/allhomes-front-end/mytestlerna/node_modules/execa/index.js:303:26)
+78 error     at Function.execSync (/home/josh/dev/allhomes-front-end/mytestlerna/node_modules/lerna/lib/ChildProcessUtilities.js:59:30)
+78 error     at run (/home/josh/dev/allhomes-front-end/mytestlerna/scripts/publish-command.js:255:56)
+78 error     at run (/home/josh/dev/allhomes-front-end/mytestlerna/scripts/publish-command.js:272:11)
+78 error     at run (/home/josh/dev/allhomes-front-end/mytestlerna/scripts/publish-command.js:272:11)
+78 error     at run (/home/josh/dev/allhomes-front-end/mytestlerna/scripts/publish-command.js:272:11)
+78 error     at run (/home/josh/dev/allhomes-front-end/mytestlerna/scripts/publish-command.js:272:11)
+78 error     at PublishCommand.npmPublish (/home/josh/dev/allhomes-front-end/mytestlerna/scripts/publish-command.js:277:7)
+78 error     at /home/josh/dev/allhomes-front-end/mytestlerna/scripts/publish-command.js:188:18
