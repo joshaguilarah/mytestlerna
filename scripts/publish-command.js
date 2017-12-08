@@ -121,7 +121,6 @@ var PublishCommand = function (_Command) {
           depsOnly: true,
           rejectCycles: true
         });
-        this.logger.info(JSON.stringify('wohoooooo!!!!!!' + batchedPackagesToPublish));
       } catch (error) {
         callback(error);
         return;
@@ -178,15 +177,11 @@ var PublishCommand = function (_Command) {
       var _this3 = this;
 
       this.logger.info('publish', 'Publishing packages to npm in topological order...');
-      _PackageUtilities2.default.runParallelBatches(this.batchedPackagesToPublish, function (pkg) {
-        _this3.logger.info('publish', 'Publishing ' + pkg.name + '...');
-        var run = function run(runCallback) {
+      this.batchedPackagesToPublish.forEach(function (batch) {
+        batch.forEach(function (pkg) {
           _this3.updatePackage(pkg);
-          _this3.npmPublish(pkg, runCallback);
-        };
-        return run;
-      }, this.concurrency, function (error) {
-        callback(error);
+          _this3.npmPublish(pkg, callback);
+        });
       });
     }
   }, {
@@ -200,6 +195,7 @@ var PublishCommand = function (_Command) {
       var yarnLockLocation = _path2.default.join(packageLocation, 'yarn.lock');
 
       // Set new version
+      // eslint-disable-next-line no-param-reassign
       pkg.version = this.updatesVersions[pkg.name] || pkg.version;
 
       // Update pkg dependencies
@@ -223,7 +219,7 @@ var PublishCommand = function (_Command) {
       // NOTE: This extra step might make the publish process take a bit longer than usual but we already
       // manually do the yarn.lock update as a separate step anyway which takes just as long.
       if (pkg.updateYarnLock) {
-        this.logger.info('Updating yarn.lock file for ' + pkg.name + '...');
+        this.logger.info('install', 'Updating yarn.lock file for ' + pkg.name + '...');
         this.runSyncScriptInPackage(pkg, 'install');
 
         // Add the yarn.lock file to list of files to be git committed
@@ -261,7 +257,6 @@ var PublishCommand = function (_Command) {
             // Run the postpublish script
             _this5.runSyncScriptInPackage(pkg, 'postpublish');
             tracker.finish();
-            callback();
             return;
           }
 
@@ -269,7 +264,7 @@ var PublishCommand = function (_Command) {
 
           if (attempts < 5) {
             _this5.logger.error('publish', 'Retrying failed publish:', pkg.name);
-            run(callback);
+            run();
           } else {
             _this5.logger.error('publish', 'Ran out of retries while publishing', pkg.name, error.stack || error);
             tracker.finish();
