@@ -1,12 +1,12 @@
 {
   "name": "japackageone",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "no-op test",
   "main": "index.js",
   "author": "",
   "license": "ISC",
   "updateYarnLock": true,
   "dependencies": {
-    "japackagetwo": "^0.0.7"
+    "japackagetwo": "^0.0.9"
   }
 }
