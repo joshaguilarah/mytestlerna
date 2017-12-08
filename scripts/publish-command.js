@@ -64,6 +64,28 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+/**
+ * This is a utility class used to handle publishing for the Allhomes mono repos using "fixed mode" versioning.
+ * <p>
+ * This custom publish handler solves the issue where a `lerna publish` does not regenerate the `yarn.lock` file
+ * with the new tarballs for linked dependencies.
+ * <p>
+ * NOTE: This class assumes the npm client is yarn and will fail if otherwise.
+ * <p>
+ * Example usage for node cli script:
+ * ```
+ * #!/usr/bin/env node
+ * import { PublishCommand } from '@domain-group/fe-allhomes-library';
+ * const publishCommand = new PublishCommand([], {}, __dirname);
+ * let exitCode;
+ * publishCommand.run().then((result) => {
+ *   exitCode = result.exitCode;
+ * }).catch((error) => {
+ *   exitCode = result.exitCode;
+ * });
+ * process.exit(exitCode);
+ * ```
+ */
 var PublishCommand = function (_Command) {
   _inherits(PublishCommand, _Command);
 
@@ -157,8 +179,11 @@ var PublishCommand = function (_Command) {
       this.logger.info('publish', 'Publishing packages to npm in topological order...');
       _PackageUtilities2.default.runParallelBatches(this.batchedPackagesToPublish, function (pkg) {
         _this3.logger.info('publish', 'Publishing ' + pkg.name + '...');
-        _this3.updatePackage(pkg);
-        _this3.npmPublish(pkg, callback);
+        var run = function run(runCallback) {
+          _this3.updatePackage(pkg);
+          _this3.npmPublish(pkg, runCallback);
+        };
+        return run;
       }, this.concurrency, function (error) {
         callback(error);
       });
