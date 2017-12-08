@@ -4,5 +4,8 @@
   "description": "no-op test",
   "main": "index.js",
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "japackagetwo": "^0.0.1"
+  }
 }
