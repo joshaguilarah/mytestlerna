@@ -1,6 +1,6 @@
 {
   "name": "japackagetwo",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "no-op test",
   "main": "index.js",
   "author": "",
